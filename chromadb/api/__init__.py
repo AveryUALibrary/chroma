@@ -3,6 +3,7 @@ from typing import Sequence, Optional
 from uuid import UUID
 
 from overrides import override
+from chromadb.api.configuration import CollectionConfiguration
 from chromadb.config import DEFAULT_DATABASE, DEFAULT_TENANT
 from chromadb.api.types import (
     CollectionMetadata,
@@ -353,6 +354,7 @@ class ClientAPI(BaseAPI, ABC):
     def create_collection(
         self,
         name: str,
+        configuration: Optional[CollectionConfiguration] = None,
         metadata: Optional[CollectionMetadata] = None,
         embedding_function: Optional[
             EmbeddingFunction[Embeddable]
@@ -423,6 +425,7 @@ class ClientAPI(BaseAPI, ABC):
     def get_or_create_collection(
         self,
         name: str,
+        configuration: Optional[CollectionConfiguration] = None,
         metadata: Optional[CollectionMetadata] = None,
         embedding_function: Optional[
             EmbeddingFunction[Embeddable]
@@ -548,6 +551,7 @@ class ServerAPI(BaseAPI, AdminAPI, Component):
     def create_collection(
         self,
         name: str,
+        configuration: Optional[CollectionConfiguration],
         metadata: Optional[CollectionMetadata] = None,
         get_or_create: bool = False,
         tenant: str = DEFAULT_TENANT,
@@ -569,6 +573,7 @@ class ServerAPI(BaseAPI, AdminAPI, Component):
     def get_or_create_collection(
         self,
         name: str,
+        configuration: Optional[CollectionConfiguration],
         metadata: Optional[CollectionMetadata] = None,
         tenant: str = DEFAULT_TENANT,
         database: str = DEFAULT_DATABASE,
@@ -584,17 +589,3 @@ class ServerAPI(BaseAPI, AdminAPI, Component):
         database: str = DEFAULT_DATABASE,
     ) -> None:
         pass
-
-
-def json_to_collection_model(json_collection: dict) -> CollectionModel:
-    return CollectionModel(
-        id=json_collection["id"],
-        name=json_collection["name"],
-        metadata=json_collection["metadata"],
-        dimension=json_collection["dimension"]
-        if "dimension" in json_collection
-        else None,
-        tenant=json_collection["tenant"],
-        database=json_collection["database"],
-        version=json_collection["version"] if "version" in json_collection else None,
-    )
